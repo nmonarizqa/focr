@@ -36,4 +36,4 @@ This web tool requires GDAL, therefore please install GDAL dependencies prior to
 
 ### Credit
 
-Thanks to Greg Dobler and his Urban Observatory Group of NYU CUSP for the backbone image processing scripts [here](https://github.com/gdobler/carve)
+Thanks to Greg Dobler of NYU CUSP and his team for the image processing scripts used in this project. Link [here](https://github.com/gdobler/carve)
