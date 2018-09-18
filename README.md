@@ -12,7 +12,7 @@ To process a raster data, a folder of a TIF file with its attribute files has to
 
 After it is done, user can download the processed TIF file (contains all information above) and visualize the TIF. 
 
-![process and visualize th file](https://rawgit.com/nmonarizqa/focr/master/demo/demo1.gif)
+![process and visualize th file](https://github.com/nmonarizqa/focr/blob/master/demo/demo1.gif?raw=true)
 
 ## 2. Visualize
 
@@ -26,7 +26,7 @@ The visualization tool will display four images in four different tabs:
 
 Click anywhere on the image to display the latitude and longtiude on the top right location box.
 
-![process and visualize th file](https://rawgit.com/nmonarizqa/focr/master/demo/demo2.gif)
+![process and visualize th file](https://github.com/nmonarizqa/focr/blob/master/demo/demo1.gif?raw=true)
 
 # Installation
 
