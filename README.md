@@ -30,9 +30,13 @@ Click anywhere on the image to display the latitude and longtiude on the top rig
 
 # Installation
 
-To install this web tool, make sure to have [python2.7](https://conda.io/miniconda.html) and all the [requirements](https://github.com/nmonarizqa/focr/blob/master/requirements.txt).
+To install this web tool, make sure to have [python2.7](https://conda.io/miniconda.html) and pip installed.
 
-This web tool requires GDAL, therefore please install GDAL dependencies prior to installation
+This web tool requires GDAL, therefore please install GDAL dependencies prior to installation.
+
+After all installed, download and extract (or git clone) this repo to the desired destination. Open command prompt (or Anaconda prompt), go inside the folder by typing `cd focr` and install all the requirements by typing `pip install -r requirements.txt`.
+
+Once everything installed, type `python app.py`, open browser, and go to the localhost address shown e.g http://127.0.0.1:5000/
 
 ### Credit
 
