@@ -1,0 +1,90 @@
+<!doctype html class="h-100">
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" type="text/css">
+
+    <title>Visualize Output</title>
+  </head>
+  <body>
+    <div class="p-5">
+    <h1><a href="{{ url_for('upload_file') }}">Friends of Chicago River</a></h1>
+    <h3>{{title}}</h3>
+    <p class="mb-0">Donwload the processed file <strong><a href={{url_for('download', filename=filename.replace(".jpg",".TIF"))}}>here</a></strong>.
+    The file will be deleted immediately once you navigate away from this page.
+    </p>
+    <p>Click anywhere on the picture to get the location.</p>
+
+    </div>
+
+    <div class="row">
+        <div class="col-sm-8">
+            <ul class="nav nav-pills flex-column flex-sm-row p-2 pl-5" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#phrag" role="tab">Phragmites</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#cluster" role="tab">Cluster</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#ndvi" role="tab">Vegetative Health</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#original" role="tab">Original</a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-4">
+            <div id="ndvi-label" class="float-right">
+                    <div>
+                        Location:
+                        <span class="lat"></span>,
+                        <span class="lon"></span>
+                    </div>
+                </div>
+        </div>
+    </div>
+    
+    <!-- Tab panes -->
+    <div class="image-placeholder tab-content" style="background: url('{{ url_for('image', filename=filename) }}') top left no-repeat; background-size:100%;">
+        <div class="tab-pane active" id="phrag" role="tabpanel">
+            <img src="{{ url_for('image', filename=phrag) | safe}}" class='phimages w-100' alt='' />
+        </div>
+        <div class="tab-pane" id="cluster" role="tabpanel">
+            <img src="{{ url_for('image', filename=cluster) | safe}}" class='phimages w-100' alt='' />
+        </div>
+        <div class="tab-pane" id="ndvi" role="tabpanel">
+            <img src="{{ url_for('image', filename=ndvi) | safe}}" class='phimages w-100' alt='' />
+        </div>
+        <div class="tab-pane" id="original" role="tabpanel">
+            <img src="{{ url_for('image', filename=filename) | safe}}" class='phimages w-100' alt='' />
+        </div>
+
+    </div>
+
+    
+    
+       
+
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script>
+        var coords = {{ coords|tojson }};
+        var ndvishp = {{ ndvishp|tojson }};
+        console.log(coords);
+    </script>
+    <script src="{{ url_for('static', filename='js/d3.js') }}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+  </body>
+</html>

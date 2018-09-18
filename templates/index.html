@@ -1,0 +1,45 @@
+<!doctype html class="h-100">
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Friends of Chicago River</title>
+  </head>
+  <body class="d-flex align-items-center justify-content-center h-100">
+    <div class="mw-50">
+    <h1>Friends of Chicago River</h1>
+    <form method="post"  class="form-control-file" enctype=multipart/form-data>
+    <h3 class="border-top pt-3">Process File</h3>
+      
+       
+        <p>Please upload a <strong>zip</strong> file. The zip file has to have a folder with <strong>"_MUL"</strong> suffix, containing TIF file and all other attribute files.</p>
+        <input type=file name=file>
+        <input type=submit value="Process" class="btn btn-primary mb-2" name="action">
+        {% if error %}
+          <p class=error><strong>Error:</strong> {{ error }}
+        {% endif %}
+
+    <h3 class="border-top pt-3">Visualize Processed File</h3>
+     
+      <p>Please upload a <strong>zip</strong> file. The zip file has to have a single file, the processed TIF file.</p>
+      <input type=file name=file>
+      <input type=submit value="Visualize" class="btn btn-primary mb-2" name="action">
+      {% if error %}
+        <p class=error><strong>Error:</strong> {{ error }}
+      {% endif %}
+    </form>
+    </div>
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+</html>
