@@ -33,3 +33,7 @@ Click anywhere on the image to display the latitude and longtiude on the top rig
 To install this web tool, make sure to have [python2.7](https://conda.io/miniconda.html) and all the [requirements](https://github.com/nmonarizqa/focr/blob/master/requirements.txt).
 
 This web tool requires GDAL, therefore please install GDAL dependencies prior to installation
+
+### Credit
+
+Thanks to Greg Dobler and his Urban Observatory Group of NYU CUSP for the backbone image processing scripts [here](https://github.com/gdobler/carve)
