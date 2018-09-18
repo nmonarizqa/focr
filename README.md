@@ -26,7 +26,7 @@ The visualization tool will display four images in four different tabs:
 
 Click anywhere on the image to display the latitude and longtiude on the top right location box.
 
-![process and visualize th file](https://github.com/nmonarizqa/focr/blob/master/demo/demo1.gif?raw=true)
+![process and visualize th file](https://github.com/nmonarizqa/focr/blob/master/demo/demo2.gif?raw=true)
 
 # Installation
 
