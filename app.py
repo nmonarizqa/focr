@@ -54,20 +54,25 @@ def upload_file():
         # if user does not select file, browser also
         # submit a empty part without filename
         if file.filename == '':
-            error = 'No selected file'
+            error = 'No file selected'
             return redirect(request.url)
+
 
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     
-        if request.form['action'] == 'Process':
-            return redirect(url_for('loading_file',
-                                    filename=filename.split(".")[0],
-                                    route="done"))
-        elif request.form['action'] == 'Visualize':
-            return redirect(url_for('visualize_file',
-                                    filename=filename.split(".")[0]))
+            if (request.form['action'] == 'Process'):
+                return redirect(url_for('loading_file',
+                                        filename=filename.split(".")[0],
+                                        route="done"))
+            elif request.form['action'] == 'Visualize':
+                return redirect(url_for('visualize_file',
+                                        filename=filename.split(".")[0]))
+            else:
+                error = "Filename format is incorrect."
+        else:
+            error = "File extension is not supported"
 
     return render_template("index.html", error=error)
 
@@ -82,30 +87,34 @@ def loading_file(filename,route):
 
 @app.route('/done/<filename>')
 def process_file(filename):
-    extract(os.path.join(app.config['UPLOAD_FOLDER'], filename+".zip"),
-    os.path.join("data","delivery","000"))
-    files = utils.get_tif_list()
-    fname = files[0]
+    try:
+        extract(os.path.join(app.config['UPLOAD_FOLDER'], filename+".zip"),
+        os.path.join("data","delivery","000"))
+        files = utils.get_tif_list()
+        fname = files[0]
 
-    scan = PhScan(fname)
-    print "Generating phragmites estimate..."
-    bgrn  = scan.norm
-    phrag = phrag_map(bgrn)
-    print "Generating the clusters..." 
-    clust = cluster_ph(scan, n_clusters=5, n_jobs=10, frac=0.05)
-
-
-    ffile = os.path.join("tmp", fname.split(os.sep)[-1].replace(".TIF", "_proc.TIF"))
+        scan = PhScan(fname)
+        print "Generating phragmites estimate..."
+        bgrn  = scan.norm
+        phrag = phrag_map(bgrn)
+        print "Generating the clusters..." 
+        clust = cluster_ph(scan, n_clusters=5, n_jobs=10, frac=0.05)
 
 
-    if not os.path.isfile(ffile):
-        print("Writing processed maps to GeoTIFF {0}...".format(ffile))
-
-        write_tif(ffile, scan, phrag, clust)
+        ffile = os.path.join("tmp", fname.split(os.sep)[-1].replace(".TIF", "_proc.TIF"))
 
 
-    print "done"
-    return render_template("process_done.html", filename=ffile.split(os.sep)[-1])
+        if not os.path.isfile(ffile):
+            print("Writing processed maps to GeoTIFF {0}...".format(ffile))
+
+            write_tif(ffile, scan, phrag, clust)
+
+        # add time to prepare files
+        time.sleep(5)
+        print "done"
+        return render_template("process_done.html", filename=ffile.split(os.sep)[-1])
+    except:
+        return render_template("index.html", error="There is an error in the process, please try again")
 
 @app.route('/download/<filename>')
 def download(filename):
@@ -124,62 +133,64 @@ def image(filename):
 
 @app.route('/visualize/<filename>')
 def visualize(filename):
-    print filename
-    fout = filename.replace(".TIF",".jpg")
+    try:
+        print filename
+        fout = filename.replace(".TIF",".jpg")
 
-    rast = gdal.Open("tmp/"+filename)
+        rast = gdal.Open("tmp/"+filename)
 
-    width = rast.RasterXSize
-    height = rast.RasterYSize
-    gt = rast.GetGeoTransform()
-    minx = gt[0]
-    miny = gt[3] + width*gt[4] + height*gt[5] 
-    maxx = gt[0] + width*gt[1] + height*gt[2]
-    maxy = gt[3]
+        width = rast.RasterXSize
+        height = rast.RasterYSize
+        gt = rast.GetGeoTransform()
+        minx = gt[0]
+        miny = gt[3] + width*gt[4] + height*gt[5] 
+        maxx = gt[0] + width*gt[1] + height*gt[2]
+        maxy = gt[3]
 
-    coords = [[maxy,miny],[minx,maxx]] 
-    with open(filename.replace(".TIF","_ll.txt"), "wb") as fp:
-        pickle.dump(coords, fp)
-    print "coord saved"
+        coords = [[maxy,miny],[minx,maxx]] 
+        with open(filename.replace(".TIF","_ll.txt"), "wb") as fp:
+            pickle.dump(coords, fp)
+        print "coord saved"
 
-    img  = rast.ReadAsArray()
-    rgb = img[:3,].transpose(1, 2, 0)[..., ::-1].copy()
-    rgb /= rgb.max()
-    grayw = utils.grayworld(rgb)
-    fac = 4
-    rgb  = (3.0 * grayw).clip(0, 1)[::fac, ::fac]
-    plt.imsave(os.path.join("tmp",fout),rgb)
+        img  = rast.ReadAsArray()
+        rgb = img[:3,].transpose(1, 2, 0)[..., ::-1].copy()
+        rgb /= rgb.max()
+        grayw = utils.grayworld(rgb)
+        fac = 4
+        rgb  = (3.0 * grayw).clip(0, 1)[::fac, ::fac]
+        plt.imsave(os.path.join("tmp",fout),rgb)
 
-    phrag = np.dstack([1-img[5,]]+[np.zeros(img[5,].shape)+255]*2)
-    phrag = phrag[::fac, ::fac]
-    plt.imsave("tmp/"+fout.replace(".jpg","_phrag.png"), phrag)
+        phrag = np.dstack([1-img[5,]]+[np.zeros(img[5,].shape)+255]*2)
+        phrag = phrag[::fac, ::fac]
+        plt.imsave("tmp/"+fout.replace(".jpg","_phrag.png"), phrag)
 
-    df = pd.DataFrame(img[4,][::fac, ::fac])
-    ndvishp = img[4,][::fac, ::fac].shape
-    with open(filename.replace(".TIF","_shp.txt"), "wb") as fp:
-        pickle.dump(ndvishp, fp)
-    print "shape saved"
+        df = pd.DataFrame(img[4,][::fac, ::fac])
+        ndvishp = img[4,][::fac, ::fac].shape
+        with open(filename.replace(".TIF","_shp.txt"), "wb") as fp:
+            pickle.dump(ndvishp, fp)
+        print "shape saved"
 
-    range_ = [-2,0,.3,.6,1]
-    vals = [[0,0,0],[206, 0, 17],[255, 238, 0],[22,224,0]]
-    dict_ndvi = {k:v for k,v in zip(range(4),vals)}
-    df = df.apply(lambda x: pd.cut(x,range_).cat.codes)
-    x = df.apply(lambda x:[dict_ndvi[y] for y in x], axis=1)
-    s1=np.vstack(np.array(x.apply(lambda y:[elem[0] for elem in y])))
-    s2=np.vstack(np.array(x.apply(lambda y:[elem[1] for elem in y])))
-    s3=np.vstack(np.array(x.apply(lambda y:[elem[2] for elem in y])))
-    ndvi = np.dstack([s1,s2,s3])
-    plt.imsave(os.path.join("tmp",fout.replace(".jpg","_ndvi.png")),ndvi)
+        range_ = [-2,0,.3,.6,1]
+        vals = [[0,0,0],[206, 0, 17],[255, 238, 0],[22,224,0]]
+        dict_ndvi = {k:v for k,v in zip(range(4),vals)}
+        df = df.apply(lambda x: pd.cut(x,range_).cat.codes)
+        x = df.apply(lambda x:[dict_ndvi[y] for y in x], axis=1)
+        s1=np.vstack(np.array(x.apply(lambda y:[elem[0] for elem in y])))
+        s2=np.vstack(np.array(x.apply(lambda y:[elem[1] for elem in y])))
+        s3=np.vstack(np.array(x.apply(lambda y:[elem[2] for elem in y])))
+        ndvi = np.dstack([s1,s2,s3])
+        plt.imsave(os.path.join("tmp",fout.replace(".jpg","_ndvi.png")),ndvi)
 
-    plt.imsave("tmp/"+fout.replace(".jpg","_cluster.png"),img[6][::fac, ::fac], cmap="Accent")
-    
-    
-    print "finish reading file"
-    print fout
+        plt.imsave("tmp/"+fout.replace(".jpg","_cluster.png"),img[6][::fac, ::fac], cmap="Accent")
+        
+        
+        print "finish reading file"
+        print fout
 
-    time.sleep(10)
-    return redirect(url_for('view', filename=fout))
-# , coords=coords,ndvi=ndvi.tolist(), ndvishp=ndvi.shape)
+        time.sleep(10)
+        return redirect(url_for('view', filename=fout))
+    except:
+        return render_template("index.html", error="There is an error in the process, please try again")
 
 @app.route('/view/<filename>')
 def view(filename):
@@ -204,5 +215,4 @@ def view(filename):
 
 
 if __name__ == '__main__':
-# 	app.run(debug=True, port=5000) # , threaded=True
-    app.run()
+	app.run(debug=True, port=5000) # , threaded=True
