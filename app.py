@@ -114,7 +114,7 @@ def process_file(filename):
         print "done"
         return render_template("process_done.html", filename=ffile.split(os.sep)[-1])
     except:
-        return render_template("index.html", error="There is an error in the process, please try again")
+        return redirect(url_for('upload_file', error="There is an error in the process, please try again"))
 
 @app.route('/download/<filename>')
 def download(filename):
@@ -135,7 +135,7 @@ def image(filename):
 def visualize(filename):
     try:
         print filename
-        fout = filename.replace(".TIF",".jpg")
+        fout = filename.replace(".TIF",".png")
 
         rast = gdal.Open("tmp/"+filename)
 
@@ -162,7 +162,7 @@ def visualize(filename):
 
         phrag = np.dstack([1-img[5,]]+[np.zeros(img[5,].shape)+255]*2)
         phrag = phrag[::fac, ::fac]
-        plt.imsave("tmp/"+fout.replace(".jpg","_phrag.png"), phrag)
+        plt.imsave("tmp/"+fout.replace(".png","_phrag.png"), phrag)
 
         df = pd.DataFrame(img[4,][::fac, ::fac])
         ndvishp = img[4,][::fac, ::fac].shape
@@ -179,9 +179,9 @@ def visualize(filename):
         s2=np.vstack(np.array(x.apply(lambda y:[elem[1] for elem in y])))
         s3=np.vstack(np.array(x.apply(lambda y:[elem[2] for elem in y])))
         ndvi = np.dstack([s1,s2,s3])
-        plt.imsave(os.path.join("tmp",fout.replace(".jpg","_ndvi.png")),ndvi)
+        plt.imsave(os.path.join("tmp",fout.replace(".png","_ndvi.png")),ndvi)
 
-        plt.imsave("tmp/"+fout.replace(".jpg","_cluster.png"),img[6][::fac, ::fac], cmap="Accent")
+        plt.imsave("tmp/"+fout.replace(".png","_cluster.png"),img[6][::fac, ::fac], cmap="Accent")
         
         
         print "finish reading file"
@@ -190,18 +190,18 @@ def visualize(filename):
         time.sleep(10)
         return redirect(url_for('view', filename=fout))
     except:
-        return render_template("index.html", error="There is an error in the process, please try again")
+        return redirect(url_for('upload_file', error="There is an error in the process, please try again"))
 
 @app.route('/view/<filename>')
 def view(filename):
     print filename
-    with open(filename.replace(".jpg","_ll.txt"), "rb") as fp:
+    with open(filename.replace(".png","_ll.txt"), "rb") as fp:
         coords = pickle.load(fp)
-    with open(filename.replace(".jpg","_shp.txt"), "rb") as fp:
+    with open(filename.replace(".png","_shp.txt"), "rb") as fp:
         ndvishp = pickle.load(fp)
-    phrag_fname = filename.replace(".jpg","_phrag.png")
-    cluster_fname = filename.replace(".jpg","_cluster.png")
-    ndvi_fname = filename.replace(".jpg","_ndvi.png")
+    phrag_fname = filename.replace(".png","_phrag.png")
+    cluster_fname = filename.replace(".png","_cluster.png")
+    ndvi_fname = filename.replace(".png","_ndvi.png")
     print phrag_fname, cluster_fname, ndvi_fname
 
     return render_template('visualize.html', \
