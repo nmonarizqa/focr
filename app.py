@@ -113,8 +113,8 @@ def process_file(filename):
         time.sleep(5)
         print("done")
         return render_template("process_done.html", filename=ffile.split(os.sep)[-1])
-    except:
-        return redirect(url_for('upload_file', error="There is an error in the process, please try again"))
+    except Exception as ex:
+        return redirect(url_for('upload_file', error="There is an error in the process_file, please try again"))
 
 @app.route('/download/<filename>')
 def download(filename):
@@ -162,7 +162,9 @@ def visualize(filename):
 
         phrag = np.dstack([1-img[5,]]+[np.zeros(img[5,].shape)+255]*2)
         phrag = phrag[::fac, ::fac]
-        plt.imsave("tmp/"+fout.replace(".png","_phrag.png"), phrag.astype('uint8'))
+        print("For phrag: ", phrag.max(), phrag.min())
+        phrag = phrag.astype('uint8')
+        plt.imsave("tmp/"+fout.replace(".png","_phrag.png"), phrag)
 
         df = pd.DataFrame(img[4,][::fac, ::fac])
         ndvishp = img[4,][::fac, ::fac].shape
@@ -179,7 +181,9 @@ def visualize(filename):
         s2=np.vstack(np.array(x.apply(lambda y:[elem[1] for elem in y])))
         s3=np.vstack(np.array(x.apply(lambda y:[elem[2] for elem in y])))
         ndvi = np.dstack([s1,s2,s3])
-        plt.imsave(os.path.join("tmp",fout.replace(".png","_ndvi.png")),ndvi.astype('uint8'))
+        ndvi = ndvi.astype('uint8')
+        print("For ndvi: ", ndvi.max(), ndvi.min())
+        plt.imsave(os.path.join("tmp",fout.replace(".png","_ndvi.png")),ndvi)
 
         plt.imsave("tmp/"+fout.replace(".png","_cluster.png"),img[6][::fac, ::fac], cmap="Accent")
         print("finish reading file")
