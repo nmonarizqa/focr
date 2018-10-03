@@ -30,13 +30,31 @@ Click anywhere on the image to display the latitude and longtiude on the top rig
 
 # Installation
 
-To install this web tool, make sure to have [python2.7](https://conda.io/miniconda.html) and pip installed.
+To install this web tool, make sure to have [python2.7+](https://www.python.org/) and pip (or pip3) installed.
 
-This web tool requires GDAL, therefore please install GDAL dependencies prior to installation.
+This web tool requires GDAL, therefore please install GDAL dependencies prior to installation. This web tool
+has been tested with gdal v2.2.2 and with v2.3.1
 
-After all installed, download and extract (or git clone) this repo to the desired destination. Open command prompt (or Anaconda prompt), go inside the folder by typing `cd focr` and install all the requirements by typing `pip install -r requirements.txt`.
+Debian/ Ubuntu Users can install gdal2 by adding unstable version of gis PPA
+``` shell
+sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable
+sudo apt-get update
+sudo apt install libgdal20
+# based on whether you are using python(2) or python3
+sudo apt install python-gdal # or python3-gdal
+```
 
-Once everything installed, type `python app.py`, open browser, and go to the localhost address shown e.g http://127.0.0.1:5000/
+Mac Users can install using brew
+``` shell
+brew tap osgeo/osgeo4mac && brew tap --repair
+brew install gdal2
+```
+
+After all installed, download and extract (or git clone) this repo to the desired destination.
+Install all the requirements by typing `sudo pip install -r requirements.txt` or `sudo pip3 install -r requirements.txt`.
+
+Once everything installed, type `python app.py` or `python3 app.py`, open browser, and go to the
+http://localhost:5000
 
 ### Credit
 
