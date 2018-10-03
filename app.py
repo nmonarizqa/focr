@@ -30,7 +30,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def reset():
-    if psutil.disk_usage('/').percent > 10:
+    if psutil.disk_usage('/').percent > 80:
         # -- remove some old files
         # -- clean the tmp directory, 10 at a time
         files = os.listdir("tmp")
