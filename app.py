@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import time
 import shutil
+import psutil
 import pickle
 
 UPLOAD_FOLDER = 'tmp'
@@ -29,17 +30,31 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def reset():
-    files = os.listdir("tmp")
-    to_be_removed = [x for x in files if("zip" in x)|("TIF" in x)]
-    if len(to_be_removed)>0:
-        for f in to_be_removed:
-            os.remove(os.path.join("tmp",f))
-
-    inputs = os.listdir(os.path.join("data","delivery","000"))
-    if len(inputs)>0:
-        for folder in inputs:
-            shutil.rmtree(os.path.join("data","delivery","000",folder))
-
+    if psutil.disk_usage('/').percent > 10:
+        # -- remove some old files
+        # -- clean the tmp directory, 10 at a time
+        files = os.listdir("tmp")
+        extensions = ['tid', 'png', 'jpg', 'zip']
+        to_be_removed = sorted([os.path.join("tmp", x) for x in files if(x.lower()[-3:] in extensions)], key=os.path.getmtime)
+        if to_be_removed:
+            for f in to_be_removed[:10]:
+                os.remove(f)
+        # -- clean the data directory, 2 at a time
+        inputs = os.listdir(os.path.join("data","delivery","000"))
+        inputs = sorted([os.path.join("data","delivery","000", x) for x in inputs], key=os.path.getmtime)
+        if inputs:
+            for folder in inputs[:2]:
+                shutil.rmtree(folder)
+        # -- clean shape and coords, 2 at a time
+        files = os.listdir("./")
+        to_be_removed = sorted([os.path.abspath(x) for x in files if("_ll.txt" in x)|("_shp.txt" in x)], key=os.path.getmtime)
+        if to_be_removed:
+            for f in to_be_removed[:2]:
+                os.remove(os.path.abspath(f))
+        
+        if psutil.disk_usage('/').percent > 80:
+            # -- if still utilization over 80%, clean up more files
+            reset()
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
