@@ -127,6 +127,8 @@ def process_file(filename):
         # add time to prepare files
         time.sleep(5)
         print("done")
+        # -- decrease reference counters for arrays
+        del scan, bgrn, phrag, clust
         return render_template("process_done.html", filename=ffile.split(os.sep)[-1])
     except Exception as ex:
         return redirect(url_for('upload_file', error="There is an error in the process_file, please try again"))
@@ -208,28 +210,33 @@ def visualize(filename):
         return redirect(url_for('view', filename=fout))
     except:
         return redirect(url_for('upload_file', error="There is an error in the process, please try again"))
-
+    finally:
+        # -- explicitly get the ref count of large numpy arrays to zero
+        del rast, gt, img, rgb, grayw, phrag, df, x, s1, s2, s3, ndvi
+    
 @app.route('/view/<filename>')
 def view(filename):
-    print(filename)
-    with open(filename.replace(".png","_ll.txt"), "rb") as fp:
-        coords = pickle.load(fp)
-    with open(filename.replace(".png","_shp.txt"), "rb") as fp:
-        ndvishp = pickle.load(fp)
-    phrag_fname = filename.replace(".png","_phrag.png")
-    cluster_fname = filename.replace(".png","_cluster.png")
-    ndvi_fname = filename.replace(".png","_ndvi.png")
-    print(phrag_fname, cluster_fname, ndvi_fname)
+    try:
+        print(filename)
+        with open(filename.replace(".png","_ll.txt"), "rb") as fp:
+            coords = pickle.load(fp)
+        with open(filename.replace(".png","_shp.txt"), "rb") as fp:
+            ndvishp = pickle.load(fp)
+        phrag_fname = filename.replace(".png","_phrag.png")
+        cluster_fname = filename.replace(".png","_cluster.png")
+        ndvi_fname = filename.replace(".png","_ndvi.png")
+        print(phrag_fname, cluster_fname, ndvi_fname)
 
-    return render_template('visualize.html', \
-    title='File: {}'.format(filename.split(".")[0]),\
-    filename=filename,\
-    phrag=phrag_fname,\
-    cluster=cluster_fname,\
-    coords=coords,\
-    ndvishp=ndvishp,\
-    ndvi=ndvi_fname)
-
+        return render_template('visualize.html', \
+                               title='File: {}'.format(filename.split(".")[0]),\
+                               filename=filename,\
+                               phrag=phrag_fname,\
+                               cluster=cluster_fname,\
+                               coords=coords,\
+                               ndvishp=ndvishp,\
+                               ndvi=ndvi_fname)
+    except Exception as ex:
+        print("Exception in view: {}".format(ex))
 
 if __name__ == '__main__':
 	app.run(debug=True, host='0.0.0.0', port=5000) # , threaded=True
