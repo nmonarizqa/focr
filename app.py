@@ -9,6 +9,7 @@ import numpy as np
 from ph_scan import PhScan
 from phrag_map import phrag_map
 from utils import cluster_ph, write_tif
+from logger import logger
 import sys
 import zipfile
 import gdal
@@ -18,6 +19,8 @@ import time
 import shutil
 import psutil
 import pickle
+
+logger = logger(loggername='focrapp', tofile=False)
 
 UPLOAD_FOLDER = 'tmp'
 ALLOWED_EXTENSIONS = set(['zip'])
@@ -109,10 +112,12 @@ def process_file(filename):
         fname = files[0]
 
         scan = PhScan(fname)
-        print("Generating phragmites estimate...")
+        logger.info("Generating phragmites estimate...")
+        #print("Generating phragmites estimate...")
         bgrn  = scan.norm
         phrag = phrag_map(bgrn)
-        print("Generating the clusters...") 
+        logger.info("Generating the clusters...")
+        #print("Generating the clusters...") 
         clust = cluster_ph(scan, n_clusters=5, n_jobs=10, frac=0.05)
 
 
@@ -120,15 +125,17 @@ def process_file(filename):
 
 
         if not os.path.isfile(ffile):
-            print("Writing processed maps to GeoTIFF {0}...".format(ffile))
+            logger.info("Writing processed maps to GeoTIFF {0}...".format(ffile))
+            #print("Writing processed maps to GeoTIFF {0}...".format(ffile))
 
             write_tif(ffile, scan, phrag, clust)
 
         # add time to prepare files
         time.sleep(5)
-        print("done")
+        logger.info("Processing Done")
+        #print("done")
         # -- decrease reference counters for arrays
-        del scan, bgrn, phrag, clust
+        #del scan, bgrn, phrag, clust
         return render_template("process_done.html", filename=ffile.split(os.sep)[-1])
     except Exception as ex:
         return redirect(url_for('upload_file', error="There is an error in the process_file, please try again"))
@@ -151,7 +158,8 @@ def image(filename):
 @app.route('/visualize/<filename>')
 def visualize(filename):
     try:
-        print(filename)
+        logger.info("Visualizing: {}".format(filename))
+        #print(filename)
         fout = filename.replace(".TIF",".png")
 
         rast = gdal.Open("tmp/"+filename)
@@ -167,7 +175,8 @@ def visualize(filename):
         coords = [[maxy,miny],[minx,maxx]] 
         with open(filename.replace(".TIF","_ll.txt"), "wb") as fp:
             pickle.dump(coords, fp)
-        print("coord saved")
+        logger.info("Coord saved")
+        #print("coord saved")
 
         img  = rast.ReadAsArray()
         rgb = img[:3,].transpose(1, 2, 0)[..., ::-1].copy()
@@ -179,7 +188,7 @@ def visualize(filename):
 
         phrag = np.dstack([1-img[5,]]+[np.zeros(img[5,].shape)+255]*2)
         phrag = phrag[::fac, ::fac]
-        print("For phrag: ", phrag.max(), phrag.min())
+        #print("For phrag: ", phrag.max(), phrag.min())
         phrag = phrag.astype('uint8')
         plt.imsave("tmp/"+fout.replace(".png","_phrag.png"), phrag)
 
@@ -187,7 +196,8 @@ def visualize(filename):
         ndvishp = img[4,][::fac, ::fac].shape
         with open(filename.replace(".TIF","_shp.txt"), "wb") as fp:
             pickle.dump(ndvishp, fp)
-        print("shape saved")
+        logger.info("Shape saved")
+        #print("shape saved")
 
         range_ = [-2,0,.3,.6,1]
         vals = [[0,0,0],[206, 0, 17],[255, 238, 0],[22,224,0]]
@@ -199,12 +209,13 @@ def visualize(filename):
         s3=np.vstack(np.array(x.apply(lambda y:[elem[2] for elem in y])))
         ndvi = np.dstack([s1,s2,s3])
         ndvi = ndvi.astype('uint8')
-        print("For ndvi: ", ndvi.max(), ndvi.min())
+        #print("For ndvi: ", ndvi.max(), ndvi.min())
         plt.imsave(os.path.join("tmp",fout.replace(".png","_ndvi.png")),ndvi)
 
         plt.imsave("tmp/"+fout.replace(".png","_cluster.png"),img[6][::fac, ::fac], cmap="Accent")
-        print("finish reading file")
-        print(fout)
+        logger.info("Finish reading file: {}".format(fout))
+        #print("finish reading file")
+        #print(fout)
 
         time.sleep(10)
         return redirect(url_for('view', filename=fout))
@@ -217,7 +228,8 @@ def visualize(filename):
 @app.route('/view/<filename>')
 def view(filename):
     try:
-        print(filename)
+        logger.info("Viewing: {}".format(filename))
+        #print(filename)
         with open(filename.replace(".png","_ll.txt"), "rb") as fp:
             coords = pickle.load(fp)
         with open(filename.replace(".png","_shp.txt"), "rb") as fp:
@@ -225,7 +237,8 @@ def view(filename):
         phrag_fname = filename.replace(".png","_phrag.png")
         cluster_fname = filename.replace(".png","_cluster.png")
         ndvi_fname = filename.replace(".png","_ndvi.png")
-        print(phrag_fname, cluster_fname, ndvi_fname)
+        logger.info("Vieweing:\n {}\n {}\n {}".format(phrag_fname, cluster_fname, ndvi_fname))
+        #print(phrag_fname, cluster_fname, ndvi_fname)
 
         return render_template('visualize.html', \
                                title='File: {}'.format(filename.split(".")[0]),\
@@ -236,7 +249,8 @@ def view(filename):
                                ndvishp=ndvishp,\
                                ndvi=ndvi_fname)
     except Exception as ex:
-        print("Exception in view: {}".format(ex))
+        logger.error("Exception in view: {}".format(ex))
+        #print("Exception in view: {}".format(ex))
 
 if __name__ == '__main__':
 	app.run(debug=True, host='0.0.0.0', port=5000) # , threaded=True
