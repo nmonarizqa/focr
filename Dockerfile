@@ -1,13 +1,12 @@
 FROM ubuntu:18.04
 
+ENV DEBIAN_FRONTEND noninteractive
+
 RUN useradd -ms /bin/bash focruser
-
-WORKDIR /home/focruser/focr
-
-COPY requirements.txt ./
 
 RUN apt-get -y update && \
     apt-get install -y --allow-unauthenticated --no-install-recommends \
+      git \
       python3 \
       python3-dev \
       python3-pip \
@@ -23,14 +22,24 @@ RUN apt-get -y update && \
       python3-gdal && \
     ln -s /usr/bin/pip3 /usr/bin/pip && \
     ln -s /usr/bin/python3 /usr/bin/python && \
-    pip install --no-cache-dir -r requirements.txt && \
+    git clone https://github.com/Mohitsharma44/focr /home/focruser/focr && \
+    cd /home/focruser/focr && git checkout uo-web && \
+    pip install --no-cache-dir -r requirements.txt && chown -R focruser:focruser . && \
     apt-get remove --purge -y  python3-pip python3-dev && \
     apt-get clean -y  && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
+    
+#RUN git	clone https://github.com/Mohitsharma44/focr && \
+#    cd focr && git checkout uo-web && \
+#    pip install --no-cache-dir -r requirements.txt && chown -R focruser:focruser . && \
+#    apt-get remove --purge -y  python3-pip python3-dev && \
+#    apt-get clean -y  && \
+#    apt-get autoremove -y && \
+#    rm -rf /var/lib/apt/lists/*
 
 USER focruser
 
-COPY --chown=focruser:focruser . .
+WORKDIR /home/focruser/focr
 
 CMD [ "python", "app.py" ]
