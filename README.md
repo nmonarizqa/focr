@@ -28,7 +28,21 @@ Click anywhere on the image to display the latitude and longtiude on the top rig
 
 ![process and visualize th file](https://github.com/nmonarizqa/focr/blob/master/demo/demo2.gif?raw=true)
 
-# Installation
+## Using the tool
+
+You can access the web version at [https://projects.cuspuo.org/focr](https://projects.cuspuo.org/focr) or run / install it locally following the below instructions.
+
+### Installation
+
+#### Running using docker:
+
+> Make sure you are running docker v17.0 or higher.
+
+1. Open terminal and type `docker run -p 5000:5000 mohitsharma44/focr`
+
+2. Go to your browser and visit `http://localhost:5000`
+
+#### Installing locally:
 
 To install this web tool, make sure to have [python2.7+](https://www.python.org/) and pip (or pip3) installed.
 
