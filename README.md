@@ -30,7 +30,7 @@ Click anywhere on the image to display the latitude and longtiude on the top rig
 
 ## Using the tool
 
-You can access the web version at [https://focrproject.cuspuo.org](https://focrproject.cuspuo.org) or run / install it locally following the below instructions.
+You can access the web version at [http://focrproject.cuspuo.org](http://focrproject.cuspuo.org) or run / install it locally following the below instructions.
 
 ### Installation
 
