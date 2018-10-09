@@ -4,7 +4,7 @@ import zipfile
 import sys
 
 def extract(path_to_zip_file, output_path):
-    print "Extract File.."
+    print("Extract File..")
     zip_ref = zipfile.ZipFile(path_to_zip_file, 'r')
     zip_ref.extractall(output_path)
     zip_ref.close()
