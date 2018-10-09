@@ -13,7 +13,7 @@ from ph_xml import *
 
 def get_tif_list():
     # -- get the full list of TIFs
-    cpath = os.path.join("data", "Delivery", "*", "*P*MUL", "*.TIF")
+    cpath = os.path.join("data", "delivery", "*", "*P*MUL", "*.TIF")
     clist = np.array(sorted(glob.glob(cpath)))
 
     return clist
